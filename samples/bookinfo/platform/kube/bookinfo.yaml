@@ -33,6 +33,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: details
+  namespace: book-info
   labels:
     app: details
     service: details
@@ -46,6 +47,7 @@ spec:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  namespace: book-info
   name: bookinfo-details
   labels:
     account: details
@@ -53,6 +55,7 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: book-info
   name: details-v1
   labels:
     app: details
@@ -72,10 +75,20 @@ spec:
       serviceAccountName: bookinfo-details
       containers:
       - name: details
-        image: docker.io/istio/examples-bookinfo-details-v1:1.16.2
+        image: 290140632813.dkr.ecr.ap-northeast-1.amazonaws.com/details:v0.0.5
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
+        env:
+          - name: NEW_RELIC_ENV
+            value: production
+          - name: NEWRELIC_KEY
+            valueFrom:
+              secretKeyRef:
+                key: newrelic_key
+                name: book-info
+#          - name: DO_NOT_ENCRYPT
+#            value: "true"
         securityContext:
           runAsUser: 1000
 ---
@@ -86,6 +99,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ratings
+  namespace: book-info
   labels:
     app: ratings
     service: ratings
@@ -100,6 +114,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: bookinfo-ratings
+  namespace: book-info
   labels:
     account: ratings
 ---
@@ -107,6 +122,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ratings-v1
+  namespace: book-info
   labels:
     app: ratings
     version: v1
@@ -125,10 +141,30 @@ spec:
       serviceAccountName: bookinfo-ratings
       containers:
       - name: ratings
-        image: docker.io/istio/examples-bookinfo-ratings-v1:1.16.2
+        image: 290140632813.dkr.ecr.ap-northeast-1.amazonaws.com/ratings:v0.0.10
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
+        env:
+        - name: NEW_RELIC_DISTRIBUTED_TRACING_ENABLED
+          value: 'true'
+        - name: NEW_RELIC_APP_NAME
+          value: 'ratings'
+        - name: NEW_RELIC_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              key: yohira_2_key
+              name: book-info
+        - name: DB_TYPE
+          value: "mysql"
+        - name: MYSQL_DB_HOST
+          value: mysqldb
+        - name: MYSQL_DB_PORT
+          value: "3306"
+        - name: MYSQL_DB_USER
+          value: root
+        - name: MYSQL_DB_PASSWORD
+          value: password
         securityContext:
           runAsUser: 1000
 ---
@@ -139,6 +175,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: reviews
+  namespace: book-info
   labels:
     app: reviews
     service: reviews
@@ -153,6 +190,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: bookinfo-reviews
+  namespace: book-info
   labels:
     account: reviews
 ---
@@ -160,6 +198,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: reviews-v1
+  namespace: book-info
   labels:
     app: reviews
     version: v1
@@ -178,11 +217,27 @@ spec:
       serviceAccountName: bookinfo-reviews
       containers:
       - name: reviews
-        image: docker.io/istio/examples-bookinfo-reviews-v1:1.16.2
+#        image: docker.io/istio/examples-bookinfo-reviews-v1:1.16.2
+        image: 290140632813.dkr.ecr.ap-northeast-1.amazonaws.com/reviews-v1:v0.0.16
         imagePullPolicy: IfNotPresent
         env:
         - name: LOG_DIR
           value: "/tmp/logs"
+        - name: NEW_RELIC_APP_NAME
+          value: reviews-v1
+        - name: NEW_RELIC_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              key: yohira_3_key
+              name: book-info
+        - name: NEW_RELIC_DISTRIBUTED_TRACING_ENABLED
+          value: 'true'
+        - name: NEW_RELIC_JFR_ENABLED
+          value: 'ture'
+        - name: NEW_RELIC_APPLICATION_LOGGING_ENABLED
+          value: 'true'
+        - name: NEW_RELIC_APPLICATION_LOGGING_FORWARDING_ENABLED
+          value: 'true'
         ports:
         - containerPort: 9080
         volumeMounts:
@@ -202,6 +257,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: reviews-v2
+  namespace: book-info
   labels:
     app: reviews
     version: v2
@@ -220,11 +276,25 @@ spec:
       serviceAccountName: bookinfo-reviews
       containers:
       - name: reviews
-        image: docker.io/istio/examples-bookinfo-reviews-v2:1.16.2
+#        image: docker.io/istio/examples-bookinfo-reviews-v2:1.16.2
+        image: 290140632813.dkr.ecr.ap-northeast-1.amazonaws.com/reviews-v2:v0.0.11
         imagePullPolicy: IfNotPresent
         env:
         - name: LOG_DIR
           value: "/tmp/logs"
+        - name: NEW_RELIC_APP_NAME
+          value: reviews-v2
+        - name: NEW_RELIC_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              key: yohira_3_key
+              name: book-info
+        - name: NEW_RELIC_DISTRIBUTED_TRACING_ENABLED
+          value: 'true'
+        - name: NEW_RELIC_APPLICATION_LOGGING_ENABLED
+          value: 'true'
+        - name: NEW_RELIC_APPLICATION_LOGGING_FORWARDING_ENABLED
+          value: 'true'
         ports:
         - containerPort: 9080
         volumeMounts:
@@ -244,6 +314,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: reviews-v3
+  namespace: book-info
   labels:
     app: reviews
     version: v3
@@ -262,11 +333,25 @@ spec:
       serviceAccountName: bookinfo-reviews
       containers:
       - name: reviews
-        image: docker.io/istio/examples-bookinfo-reviews-v3:1.16.2
+#        image: docker.io/istio/examples-bookinfo-reviews-v3:1.16.2
+        image: 290140632813.dkr.ecr.ap-northeast-1.amazonaws.com/reviews-v3:v0.0.6
         imagePullPolicy: IfNotPresent
         env:
         - name: LOG_DIR
           value: "/tmp/logs"
+        - name: NEW_RELIC_APP_NAME
+          value: reviews-v3
+        - name: NEW_RELIC_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              key: yohira_3_key
+              name: book-info
+        - name: NEW_RELIC_DISTRIBUTED_TRACING_ENABLED
+          value: 'true'
+        - name: NEW_RELIC_APPLICATION_LOGGING_ENABLED
+          value: 'true'
+        - name: NEW_RELIC_APPLICATION_LOGGING_FORWARDING_ENABLED
+          value: 'true'
         ports:
         - containerPort: 9080
         volumeMounts:
@@ -289,6 +374,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: productpage
+  namespace: book-info
   labels:
     app: productpage
     service: productpage
@@ -303,6 +389,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: bookinfo-productpage
+  namespace: book-info
   labels:
     account: productpage
 ---
@@ -310,6 +397,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: productpage-v1
+  namespace: book-info
   labels:
     app: productpage
     version: v1
@@ -328,7 +416,7 @@ spec:
       serviceAccountName: bookinfo-productpage
       containers:
       - name: productpage
-        image: docker.io/istio/examples-bookinfo-productpage-v1:1.16.2
+        image: 290140632813.dkr.ecr.ap-northeast-1.amazonaws.com/productpage:v0.0.4
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
@@ -337,7 +425,28 @@ spec:
           mountPath: /tmp
         securityContext:
           runAsUser: 1000
+        env:
+          - name: NEW_RELIC_APP_NAME
+            value: "bookinfo-productpage"
+          - name: NEW_RELIC_LICENSE_KEY
+            valueFrom:
+              secretKeyRef:
+                key: newrelic_key
+                name: book-info
       volumes:
       - name: tmp
         emptyDir: {}
 ---
+###########
+# Secret
+###########
+apiVersion: v1
+kind: Secret
+metadata:
+  name: book-info
+  namespace: book-info
+type: Opaque
+data:
+  newrelic_key: OTg2YzQ1MGZiODE0ZDk5MzVkYjkzNTBjNmU2NmI2NGNiZmI5TlJBTA==
+  yohira_2_key: OWE3ZGQxNjFjY2NiOGVhYmY1ZmQ0YTRiZjJkZTdkNWVkMDFmTlJBTA==
+  yohira_3_key: NTQxMDUwNDNiOThiNjc3NDgyNzRiNjNmMDI5NzNhMmM2ODU3TlJBTA==

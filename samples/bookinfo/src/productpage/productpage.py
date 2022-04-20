@@ -25,6 +25,7 @@ from jaeger_client.codecs import B3Codec
 from opentracing.ext import tags
 from opentracing.propagation import Format
 from opentracing_instrumentation.request_context import get_current_span, span_in_context
+from newrelic.agent import NewRelicContextFormatter
 import simplejson as json
 import requests
 import sys
@@ -42,6 +43,14 @@ except ImportError:
     # Python 2
     import httplib as http_client
 http_client.HTTPConnection.debuglevel = 1
+
+hander = logging.StreamHandler()
+
+formatter = NewRelicContextFormatter()
+hander.setFormatter(formatter)
+
+root_logger = logging.getLogger()
+root_logger.addHandler(hander)
 
 app = Flask(__name__)
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)

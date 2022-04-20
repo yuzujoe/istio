@@ -12,8 +12,12 @@
 //   See the License for the specific language governing permissions and
 //   limitations under the License.
 
+require('newrelic')
+
 var http = require('http')
 var dispatcher = require('httpdispatcher')
+const winston = require('winston')
+const format = winston.format
 
 var port = parseInt(process.argv[2])
 
@@ -21,6 +25,19 @@ var userAddedRatings = [] // used to demonstrate POST functionality
 
 var unavailable = false
 var healthy = true
+
+const newrelicFormatter = require('@newrelic/winston-enricher')
+
+const logger = winston.createLogger({
+    level: 'info',
+    format: format.combine(
+        format.json(),
+        newrelicFormatter()
+    ),
+    transports: [
+        new winston.transports.Console()
+    ]
+})
 
 if (process.env.SERVICE_VERSION === 'v-unavailable') {
     // make the service unavailable once in 60 seconds
@@ -251,7 +268,7 @@ function getLocalReviews (productId) {
 
 function handleRequest (request, response) {
   try {
-    console.log(request.method + ' ' + request.url)
+    logger.info(request.method + ' ' + request.url)
     dispatcher.dispatch(request, response)
   } catch (err) {
     console.log(err)
@@ -261,5 +278,5 @@ function handleRequest (request, response) {
 var server = http.createServer(handleRequest)
 
 server.listen(port, function () {
-  console.log('Server listening on: http://0.0.0.0:%s', port)
+    logger.info('Server listening on: http://0.0.0.0:%s', port)
 })
