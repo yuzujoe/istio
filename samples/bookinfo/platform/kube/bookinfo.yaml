@@ -437,16 +437,3 @@ spec:
       - name: tmp
         emptyDir: {}
 ---
-###########
-# Secret
-###########
-apiVersion: v1
-kind: Secret
-metadata:
-  name: book-info
-  namespace: book-info
-type: Opaque
-data:
-  newrelic_key: OTg2YzQ1MGZiODE0ZDk5MzVkYjkzNTBjNmU2NmI2NGNiZmI5TlJBTA==
-  yohira_2_key: OWE3ZGQxNjFjY2NiOGVhYmY1ZmQ0YTRiZjJkZTdkNWVkMDFmTlJBTA==
-  yohira_3_key: NTQxMDUwNDNiOThiNjc3NDgyNzRiNjNmMDI5NzNhMmM2ODU3TlJBTA==
